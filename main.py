@@ -83,6 +83,11 @@ def main():
     logging.info(f"Calculated {algorithm} hash for {filepath}: {calculated_hash}")
 
     if compare_hash:
+        # The expected value is compared as typed apart from case: no
+        # trimming and no length check against the chosen algorithm,
+        # so a value pasted with a trailing space, or a sha256 string
+        # handed to a run with -a md5, reports as an integrity failure
+        # rather than as a bad argument.
         # Input validation for compare_hash
         if not isinstance(compare_hash, str):
             logging.error(f"Error: Invalid hash '{compare_hash}'. Please provide a valid hash value.")
@@ -91,6 +96,10 @@ def main():
         if calculated_hash.lower() == compare_hash.lower():
             logging.info("Hash values match. File integrity verified.")
         else:
+            # A failed verification is a warning line and nothing
+            # more: main returns and the process exits 0, exactly as
+            # it does for a match. Any script chaining on this tool
+            # must parse the log text to learn the file was wrong.
             logging.warning("Hash values do not match. File integrity check failed.")
 
 
