@@ -93,7 +93,12 @@ def main():
             logging.error(f"Error: Invalid hash '{compare_hash}'. Please provide a valid hash value.")
             sys.exit(1)
 
-        if calculated_hash.lower() == compare_hash.lower():
+        expected_len = len(calculated_hash)
+        cleaned = compare_hash.strip()
+        if len(cleaned) != expected_len or any(c not in "0123456789abcdefABCDEF" for c in cleaned):
+            logging.error(f"Error: Invalid hash '{compare_hash}' for algorithm {algorithm}. Expected {expected_len} hexadecimal characters.")
+            sys.exit(2)
+        if calculated_hash.lower() == cleaned.lower():
             logging.info("Hash values match. File integrity verified.")
         else:
             # A failed verification is a warning line and nothing
@@ -101,6 +106,7 @@ def main():
             # it does for a match. Any script chaining on this tool
             # must parse the log text to learn the file was wrong.
             logging.warning("Hash values do not match. File integrity check failed.")
+            sys.exit(1)
 
 
 if __name__ == "__main__":
